@@ -1,0 +1,39 @@
+:local(.stastic_banner) {
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    border-radius: 20px;
+    width: 100%;
+
+    .ant-card {
+        background: transparent;
+
+        .ant-card-head-title {
+            color: #fff;
+        }
+
+        .ant-card-body {
+            color: #fff;
+
+            h6 {
+                color: #fff;
+                font-weight: 600;
+                font-size: 30px;
+            }
+        }
+    }
+}
+
+:local(.license_banner) {
+    composes: stastic_banner;
+    background-image: url('../images/overview/bg-blue.png')
+}
+
+:local(.track_banner) {
+    composes: stastic_banner;
+    background-image: url('../images/overview/bg-orange.png')
+}
+
+:local(.online_banner) {
+    composes: stastic_banner;
+    background-image: url('../images/overview/bg-green.png')
+}
