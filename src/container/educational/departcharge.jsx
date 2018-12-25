@@ -70,6 +70,7 @@ class EditDepartFrom extends Component {
 						rules: [ { required: true, message: '请填写部门名称' } ]
 					})(<Input />)}
 				</FormItem>
+
 				<FormItem>
 					<Button type="primary" onClick={this.handleSubmit}>
 						确定

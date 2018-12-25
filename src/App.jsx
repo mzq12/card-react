@@ -20,6 +20,11 @@ const ClassesCharge = lazy(() => import('./container/educational/classescharge.j
 const ClassAssignment = lazy(() => import('./container/instructional/classassignment.jsx'));
 const StudentLeave = lazy(() => import('./container/instructional/studentleave.jsx'));
 const StudentAttendance = lazy(() => import('./container/instructional/studentattendance.jsx'));
+// 安全管理
+const Safetynotice = lazy(() => import('./container/safety/safetyNotice.jsx'));
+const ChargeCard = lazy(() => import('./container/safety/chargCard.jsx'));
+// 教师办公
+const Announcement = lazy(() => import('./container/teacherOffice/announcement.jsx'));
 class App extends Component {
 	state = {
 		BreadcrumbLen: []
@@ -56,8 +61,7 @@ class App extends Component {
 							key="预约管理"
 							title={
 								<span>
-									{' '}
-									<Icon type="form" /> <span> 教务管理 </span>{' '}
+									<Icon type="form" /> <span> 教务管理 </span>
 								</span>
 							}
 						>
@@ -84,8 +88,7 @@ class App extends Component {
 							key="教学管理"
 							title={
 								<span>
-									{' '}
-									<Icon type="user" /> <span> 教学管理 </span>{' '}
+									<Icon type="user" /> <span> 教学管理 </span>
 								</span>
 							}
 						>
@@ -97,6 +100,36 @@ class App extends Component {
 							</Menu.Item>
 							<Menu.Item key="学生考勤">
 								<Link to="/studentattendance">学生考勤</Link>
+							</Menu.Item>
+						</SubMenu>
+						<SubMenu
+							key="安全管理"
+							title={
+								<span>
+									<Icon type="user" /> <span> 安全管理 </span>
+								</span>
+							}
+						>
+							<Menu.Item key="校园卡管理">
+								<Link to="/chargeCard">校园卡管理</Link>
+							</Menu.Item>
+							<Menu.Item key="学生请假">
+								<Link to="/studentleave">安全区域</Link>
+							</Menu.Item>
+							<Menu.Item key="学生考勤">
+								<Link to="/safetynotice">安全通知</Link>
+							</Menu.Item>
+						</SubMenu>
+						<SubMenu
+							key="教师办公"
+							title={
+								<span>
+									<Icon type="user" /> <span> 教师办公 </span>
+								</span>
+							}
+						>
+							<Menu.Item key="公告通知">
+								<Link to="/announcement">公告通知</Link>
 							</Menu.Item>
 						</SubMenu>
 					</Menu>
@@ -137,6 +170,9 @@ class App extends Component {
 									<Route path="/classassignment" component={() => <ClassAssignment />} />
 									<Route path="/studentleave" component={() => <StudentLeave />} />
 									<Route path="/studentattendance" component={() => <StudentAttendance />} />
+									<Route path="/announcement" component={() => <Announcement />} />
+									<Route path="/safetynotice" component={() => <Safetynotice />} />
+									<Route path="/chargeCard" component={() => <ChargeCard />} />
 								</Switch>
 							</Suspense>
 						</div>

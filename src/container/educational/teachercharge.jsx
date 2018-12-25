@@ -157,17 +157,7 @@ class AddTeacherForm extends Component {
 						</Row>
 						<Row>
 							<Col span={24}>
-								<FormItem label="家庭电话">{getFieldDecorator('birthday')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
 								<FormItem label="工作电话">{getFieldDecorator('birthday')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="入校时间">{getFieldDecorator('birthday')(<Input />)}</FormItem>
 							</Col>
 						</Row>
 						<Row>
@@ -218,11 +208,6 @@ class AddTeacherForm extends Component {
 								</FormItem>
 							</Col>
 						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="QQ号">{getFieldDecorator('familyPhone')(<Input />)}</FormItem>
-							</Col>
-						</Row>
 					</Col>
 					<Col span={11}>
 						<Row>
@@ -263,21 +248,6 @@ class AddTeacherForm extends Component {
 						</Row>
 						<Row>
 							<Col span={24}>
-								<FormItem label="备用手机手机">{getFieldDecorator('phoneNumber')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="家庭邮编">{getFieldDecorator('postcode')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="家庭地址">{getFieldDecorator('familyAddress')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
 								<FormItem label="所属部门">
 									{getFieldDecorator('theYellow', { initialValue: '请选择' })(
 										<Select>
@@ -309,11 +279,6 @@ class teacherCharge extends Component {
 			visible: false,
 			columns: [
 				{
-					title: '账号',
-					dataIndex: 'class',
-					key: 'class'
-				},
-				{
 					title: '工号',
 					dataIndex: 'studentID',
 					key: 'studentID'
@@ -344,17 +309,9 @@ class teacherCharge extends Component {
 					key: 'operation',
 					render: (text, record) => (
 						<span>
-							<a>初始化密码</a>
+							<a>重置密码</a>
 							<Divider type="vertical" />
 							<a>修改</a>
-							<Divider type="vertical" />
-							<a>离职</a>
-							<Divider type="vertical" />
-							<a>分配角色</a>
-							<Divider type="vertical" />
-							<a>任教情况</a>
-							<Divider type="vertical" />
-							<a>个人档案</a>
 							<Divider type="vertical" />
 							<a>删除</a>
 						</span>

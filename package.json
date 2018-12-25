@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@antv/data-set": "^0.10.1",
     "antd": "^3.11.2",
     "axios": "^0.18.0",
     "babel-plugin-import": "^1.11.0",
+    "bizcharts": "^3.4.1",
     "react": "^16.6.3",
     "react-app-rewire-typescript": "^2.0.2",
     "react-app-rewired": "^1.6.2",

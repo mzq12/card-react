@@ -1,25 +1,8 @@
 import React, { Component } from 'react';
-import {
-	Form,
-	Input,
-	Button,
-	Table,
-	Divider,
-	Modal,
-	Popconfirm,
-	Select,
-	Row,
-	Col,
-	DatePicker,
-	Collapse,
-	Checkbox
-} from 'antd';
-import PicturesWall from '../../components/picturesWall';
+import { Form, Input, Button, Table, Modal, Select, Row, Col, DatePicker } from 'antd';
+import StudentTable from '../../components/studentDataTable.jsx';
 const FormItem = Form.Item;
 const Option = Select.Option;
-const { RangePicker } = DatePicker;
-const Panel = Collapse.Panel;
-const CheckboxGroup = Checkbox.Group;
 const { TextArea } = Input;
 // 操作表单
 class OperateForm extends Component {
@@ -100,19 +83,197 @@ class OperateForm extends Component {
 						</Col>
 					</Row>
 				</Form>
-				<Modal visible={this.state.visible} onCancel={this.handleCancle}>
-					弹层
+				<Modal visible={this.state.visible} onCancel={this.handleCancle} width={800}>
+					<Addleave />
+				</Modal>
+			</div>
+		);
+	}
+}
+// 添加请假
+class Addleave extends Component {
+	state = {
+		visible: false
+	};
+	handleFocus = () => {
+		console.log(111);
+		this.setState({
+			visible: true
+		});
+	};
+	handleCancel = () => {
+		this.setState({
+			visible: false
+		});
+	};
+	render() {
+		return (
+			<div>
+				<Form layout="horizontal">
+					<Row>
+						<Col span={11}>
+							<FormItem label="请假类型">
+								<Select placeholder="请选择">
+									<Option value="1">病假</Option>
+									<Option value="2">事假</Option>
+									<Option value="3">其它</Option>
+								</Select>
+							</FormItem>
+						</Col>
+						<Col span={11}>
+							<FormItem label="请假学生" labelCol={{ offset: 2 }} wrapperCol={{ offset: 2 }}>
+								<Input onClick={this.handleFocus} />
+							</FormItem>
+						</Col>
+					</Row>
+					<Row>
+						<Col span={12}>
+							<FormItem label="开始时间">
+								<DatePicker />
+							</FormItem>
+						</Col>
+						<Col span={12}>
+							<FormItem label="结束时间">
+								<DatePicker />
+							</FormItem>
+						</Col>
+					</Row>
+					<Row>
+						<Col span={12}>
+							<FormItem label="请假时间">
+								<FormItem label="天" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>
+									<Input />
+								</FormItem>
+								<FormItem label="时" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>
+									<Input />
+								</FormItem>
+							</FormItem>
+						</Col>
+					</Row>
+					<FormItem label="请假事由">
+						<TextArea rows={6} cols={33} />
+					</FormItem>
+					<FormItem label="老师备注">
+						<TextArea rows={6} cols={33} />
+					</FormItem>
+				</Form>
+				<Modal visible={this.state.visible} onCancel={this.handleCancel} width={800} footer={null}>
+					<StudentTable />
 				</Modal>
 			</div>
 		);
 	}
 }
 const WrapedOperateForm = Form.create()(OperateForm);
+// 请假详情
+class LeaveDetail extends Component {
+	render() {
+		return (
+			<Form>
+				<FormItem label="请假类型">
+					<Input disabled={true} value={'事假'} />
+				</FormItem>
+				<FormItem label="请假学生学号">
+					<Input disabled={true} value={'163165+5+'} />
+				</FormItem>
+				<FormItem label="请假学生姓名">
+					<Input disabled={true} value={'马龙白兰度'} />
+				</FormItem>
+				<FormItem label="开始时间">
+					<Input disabled={true} value={'2018.12.14 12:18'} />
+				</FormItem>
+				<FormItem label="结束时间">
+					<Input disabled={true} value={'2018.12.14 13:18'} />
+				</FormItem>
+				<FormItem>
+					<FormItem label="天" labelCol={{ span: 3 }} wrapperCol={{ span: 4 }}>
+						<Input disabled={true} value={0} />
+					</FormItem>
+					<FormItem label="时" labelCol={{ span: 3 }} wrapperCol={{ span: 4 }}>
+						<Input disabled={true} value={2} />
+					</FormItem>
+				</FormItem>
+				<FormItem label="请假事由">
+					<TextArea value={'你猜'} disabled={true} />
+				</FormItem>
+				<FormItem label="审批意见">
+					<TextArea value={'不告诉你'} disabled={true} />
+				</FormItem>
+				<FormItem label="审批人">
+					<Input disabled={true} value={'强尼德普'} />
+				</FormItem>
+			</Form>
+		);
+	}
+}
+class Approve extends Component {
+	render() {
+		return (
+			<Form layout="horizontal">
+				<Row>
+					<Col span={11}>
+						<FormItem label="请假类型">
+							<Select placeholder="请选择" disabled={true}>
+								<Option value="1">病假</Option>
+								<Option value="2">事假</Option>
+								<Option value="3">其它</Option>
+							</Select>
+						</FormItem>
+					</Col>
+					<Col span={11}>
+						<FormItem label="请假学生" labelCol={{ offset: 2 }} wrapperCol={{ offset: 2 }}>
+							<Input disabled={true} />
+						</FormItem>
+					</Col>
+				</Row>
+				<Row>
+					<Col span={12}>
+						<FormItem label="开始时间">
+							<DatePicker disabled={true} />
+						</FormItem>
+					</Col>
+					<Col span={12}>
+						<FormItem label="结束时间">
+							<DatePicker disabled={true} />
+						</FormItem>
+					</Col>
+				</Row>
+				<Row>
+					<Col span={12}>
+						<FormItem label="请假时间">
+							<FormItem label="天" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>
+								<Input disabled={true} />
+							</FormItem>
+							<FormItem label="时" labelCol={{ span: 6 }} wrapperCol={{ span: 14 }}>
+								<Input disabled={true} />
+							</FormItem>
+						</FormItem>
+					</Col>
+				</Row>
+				<FormItem label="请假事由">
+					<TextArea rows={6} cols={33} disabled={true} />
+				</FormItem>
+				<FormItem label="老师备注">
+					<TextArea rows={6} cols={33} disabled={true} />
+				</FormItem>
+				<FormItem label="审批人">
+					<Input disabled={true} value={'强尼德普'} />
+				</FormItem>
+				<FormItem>
+					<Button type="primary" style={{ marginRight: 12 }}>
+						批准
+					</Button>
+					<Button type="primary">拒批</Button>
+				</FormItem>
+			</Form>
+		);
+	}
+}
 // 数据表格
 class Datatable extends Component {
 	state = {
-		visible: false,
-		modalContent: 'assignmentDetail',
+		detailVisible: false,
+		modalContent: 'leavelDetail',
 		columns: [
 			{
 				title: '学号',
@@ -163,11 +324,37 @@ class Datatable extends Component {
 				title: '操作',
 				dataIndex: 'operation',
 				key: 'operation',
-				render: () => (
-					<span>
-						<a onClick={this.showModal}>详情</a>
-					</span>
-				)
+				render: (text, record) => {
+					let Opert;
+					if (record.status === '已审批') {
+						Opert = (
+							<a
+								onClick={() => {
+									this.setState({
+										modalContent: 'leavelDetail'
+									});
+									this.showModal();
+								}}
+							>
+								详情
+							</a>
+						);
+					} else {
+						Opert = (
+							<a
+								onClick={() => {
+									this.setState({
+										modalContent: 'approve'
+									});
+									this.showModal();
+								}}
+							>
+								审批
+							</a>
+						);
+					}
+					return <span>{Opert}</span>;
+				}
 			}
 		],
 		data: [
@@ -227,7 +414,7 @@ class Datatable extends Component {
 				duration: 4,
 				startTime: '2018-12-24 10:02',
 				endTime: '2018-12-24 14:02',
-				status: '已审批',
+				status: '未审批',
 				dealTime: '2018-12-24',
 				approver: '查理兹塞隆'
 			}
@@ -244,7 +431,14 @@ class Datatable extends Component {
 		});
 	};
 	render() {
-		return <Table columns={this.state.columns} dataSource={this.state.data} />;
+		return (
+			<div>
+				<Table columns={this.state.columns} dataSource={this.state.data} />
+				<Modal visible={this.state.visible} onCancel={this.handleCancle} footer={null}>
+					{this.state.modalContent === 'leavelDetail' ? <LeaveDetail /> : <Approve />}
+				</Modal>
+			</div>
+		);
 	}
 }
 class studentLeave extends Component {

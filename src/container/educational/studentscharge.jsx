@@ -60,27 +60,6 @@ class OperateForm extends Component {
 							)}
 						</FormItem>
 					</Col>
-					<Col span={5}>
-						<FormItem label="是否住校">
-							{getFieldDecorator('isresident', { initialValue: '请选择' })(
-								<Select onChange={this.handleChange}>
-									<Option value="11">住读生</Option>
-									<Option value="12">走读生</Option>
-									<Option value="13">通校生</Option>
-								</Select>
-							)}
-						</FormItem>
-					</Col>
-					<Col span={5}>
-						<FormItem label="进离校">
-							{getFieldDecorator('inOrOut', { initialValue: '请选择' })(
-								<Select onChange={this.handleChange}>
-									<Option value="11">已关闭</Option>
-									<Option value="12">已开启</Option>
-								</Select>
-							)}
-						</FormItem>
-					</Col>
 				</Row>
 				<Row>
 					<Col span={2}>
@@ -254,77 +233,7 @@ class AddStudetForm extends Component {
 						</Row>
 						<Row>
 							<Col span={24}>
-								<FormItem label="家庭电话">{getFieldDecorator('familyPhone')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
 								<FormItem label="籍贯">{getFieldDecorator('address')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="住宿类型">
-									{getFieldDecorator('accTypes', {
-										initialValue: '请选择'
-									})(
-										<Select onChange={this.handleChange}>
-											<Option value="11">住校生</Option>
-											<Option value="12">走读生</Option>
-											<Option value="13">通校生</Option>
-										</Select>
-									)}
-								</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="全国学籍编号">{getFieldDecorator('nationNumber')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="学生类型">
-									{getFieldDecorator('studentTypes', {
-										initialValue: '请选择'
-									})(
-										<Select onChange={this.handleChange}>
-											<Option value="11">小学</Option>
-											<Option value="12">初中</Option>
-											<Option value="13">高中</Option>
-										</Select>
-									)}
-								</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="原毕业学校">{getFieldDecorator('prevSchool')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="班内编号">{getFieldDecorator('inClassNumber')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="户籍社区/村">{getFieldDecorator('community')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="户籍镇/街">{getFieldDecorator('town')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="户口类别">{getFieldDecorator('residenceCate')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="监护人">{getFieldDecorator('guardian')(<Input />)}</FormItem>
 							</Col>
 						</Row>
 					</Col>
@@ -360,70 +269,6 @@ class AddStudetForm extends Component {
 									{getFieldDecorator('inSchoolTime', {
 										rules: [ { required: true, message: '学号必填' } ]
 									})(<Input />)}
-								</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="手机号码">{getFieldDecorator('phoneNumber')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="家庭邮编">{getFieldDecorator('postcode')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="家庭地址">{getFieldDecorator('familyAddress')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="学籍辅号">{getFieldDecorator('auxNo')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="入学方式">{getFieldDecorator('inWay')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="入学总分">{getFieldDecorator('totalGoal')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="户籍省县">{getFieldDecorator('huji')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="监护人手机号">{getFieldDecorator('guardianPhone')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="港澳台侨外">
-									{getFieldDecorator('theYellow', { initialValue: '请选择' })(
-										<Select>
-											<Option value="0">否</Option>
-											<Option value="1">是</Option>
-										</Select>
-									)}
-								</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="学前教育">
-									{getFieldDecorator('studyBefore', { initialValue: '请选择' })(
-										<Select>
-											<Option value="0">否</Option>
-											<Option value="1">是</Option>
-										</Select>
-									)}
 								</FormItem>
 							</Col>
 						</Row>
@@ -473,19 +318,9 @@ class studentsCharge extends Component {
 					key: 'studentStatus'
 				},
 				{
-					title: '状态',
+					title: '年级',
 					dataIndex: 'status',
 					key: 'status'
-				},
-				{
-					title: '住校类型',
-					dataIndex: 'residence',
-					key: 'residence'
-				},
-				{
-					title: '进离校权限',
-					dataIndex: 'permission',
-					key: 'permission'
 				},
 				{
 					title: '操作',
@@ -493,13 +328,10 @@ class studentsCharge extends Component {
 					key: 'operation',
 					render: (text, record) => (
 						<span>
-							<a>数字档案</a>
+							<a>修改</a>
 							<Divider type="vertical" />
 							<a>家长设置</a>
 							<Divider type="vertical" />
-							<a>禁用</a>
-							<Divider type="vertical" />
-							<a>开启离校</a>
 						</span>
 					)
 				}
@@ -512,9 +344,7 @@ class studentsCharge extends Component {
 					studentName: 'chuze',
 					gender: '男',
 					studentStatus: '注册',
-					status: '启用',
-					residence: '住读生',
-					permission: '已关闭'
+					status: '5年级'
 				},
 				{
 					key: '2',
@@ -523,9 +353,7 @@ class studentsCharge extends Component {
 					studentName: 'chuze',
 					gender: '男',
 					studentStatus: '注册',
-					status: '启用',
-					residence: '住读生',
-					permission: '已关闭'
+					status: '5年级'
 				},
 				{
 					key: '3',
@@ -534,9 +362,7 @@ class studentsCharge extends Component {
 					studentName: 'chuze',
 					gender: '男',
 					studentStatus: '注册',
-					status: '启用',
-					residence: '住读生',
-					permission: '已关闭'
+					status: '5年级'
 				},
 				{
 					key: '4',
@@ -545,9 +371,7 @@ class studentsCharge extends Component {
 					studentName: 'chuze',
 					gender: '男',
 					studentStatus: '注册',
-					status: '启用',
-					residence: '住读生',
-					permission: '已关闭'
+					status: '5年级'
 				}
 			]
 		};
