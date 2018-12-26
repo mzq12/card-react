@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Form, Input, Button, Table, Divider, Modal, Popconfirm, Select, Row, Col, Upload, Icon } from 'antd';
+import { Form, Input, Button, Table, Divider, Modal, Select, Row, Col, Upload, Icon, message } from 'antd';
+import http from '../../config/axios.config';
 const FormItem = Form.Item;
 const Option = Select.Option;
 class OperateForm extends Component {
@@ -280,28 +281,33 @@ class teacherCharge extends Component {
 			columns: [
 				{
 					title: '工号',
-					dataIndex: 'studentID',
-					key: 'studentID'
+					dataIndex: 'job_num',
+					key: 'job_num'
 				},
 				{
 					title: '姓名',
-					dataIndex: 'studentName',
-					key: 'studentName'
+					dataIndex: 'name',
+					key: 'name'
 				},
 				{
 					title: '所属角色',
-					dataIndex: 'gender',
-					key: 'gender'
+					dataIndex: 'role',
+					key: 'role'
 				},
 				{
 					title: '状态',
-					dataIndex: 'studentStatus',
-					key: 'studentStatus'
-				},
-				{
-					title: '状态',
-					dataIndex: 'status',
-					key: 'status'
+					dataIndex: 'data_state',
+					key: 'data_state',
+					render: (text) => {
+						console.log(text);
+						if (text === 0) {
+							return '删除';
+						} else if (text === 1) {
+							return '在职';
+						} else if (text === 2) {
+							return '离职';
+						}
+					}
 				},
 				{
 					title: '操作',
@@ -318,42 +324,36 @@ class teacherCharge extends Component {
 					)
 				}
 			],
-			data: [
-				{
-					key: '1',
-					class: '2364123',
-					studentID: 1123213,
-					studentName: 'chuze',
-					gender: '老师,系统管理员,校领导',
-					studentStatus: '在职'
-				},
-				{
-					key: '2',
-					class: '2364123',
-					studentID: 1123213,
-					studentName: 'chuze',
-					gender: '老师,系统管理员,校领导',
-					studentStatus: '在职'
-				},
-				{
-					key: '3',
-					class: '2364123',
-					studentID: 1123213,
-					studentName: 'chuze',
-					gender: '老师,系统管理员,校领导',
-					studentStatus: '在职'
-				},
-				{
-					key: '4',
-					class: '2364123',
-					studentID: 1123213,
-					studentName: 'chuze',
-					gender: '老师,系统管理员,校领导',
-					studentStatus: '在职'
-				}
-			]
+			data: []
 		};
 	}
+	componentDidMount() {
+		this.fetchTeachers(1, 10);
+	}
+	fetchTeachers = (page, count) => {
+		http({
+			method: 'post',
+			url: '/aj/teacher/getteachers',
+			data: {
+				page: page,
+				count: count
+			}
+		}).then((res) => {
+			if (res.data.code === 10000) {
+				let data = res.data.data.teachers.map((item) => {
+					item.key = item.teacher_id;
+					return item;
+				});
+				let total_count = res.data.data.total_count;
+				this.setState({
+					data: data,
+					total_count: total_count
+				});
+			} else {
+				message.error(res.data.msg);
+			}
+		});
+	};
 	handleOk = (e) => {
 		this.setState({
 			visible: false

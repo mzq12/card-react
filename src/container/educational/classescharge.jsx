@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import { Form, Input, Button, Table, Divider, Modal, Popconfirm, Select, Row, Col, Transfer } from 'antd';
+import { Form, Input, Button, Table, Divider, Modal, Popconfirm, Select, Row, Col, Transfer, message } from 'antd';
+import http from '../../config/axios.config';
+import SheetToJson from '../../components/sheetToJson.jsx';
 const FormItem = Form.Item;
 const Option = Select.Option;
+const modalContext = React.createContext();
 class OperateForm extends Component {
 	handleChange = (value) => {
 		console.log(value);
@@ -51,9 +54,51 @@ class OperateForm extends Component {
 	}
 }
 const WrapedOperateForm = Form.create()(OperateForm);
-// 添加课程
+// 添加班级
+class SchoolSystem extends Component {
+	render() {
+		switch (this.props.type) {
+			case '1':
+				return (
+					<Select onChange={this.props.handleValue} placeholder="请选择年级">
+						<Option value="1">一年级</Option>
+						<Option value="2">二年级</Option>
+						<Option value="3">三年级</Option>
+						<Option value="4">四年级</Option>
+						<Option value="5">五年级</Option>
+						<Option value="6">六年级</Option>
+					</Select>
+				);
+			case '2':
+				return (
+					<Select onChange={this.props.handleValue} placeholder="请选择年级">
+						<Option value="6">初一</Option>
+						<Option value="7">初二</Option>
+						<Option value="8">初三</Option>
+					</Select>
+				);
+			case '3':
+				return (
+					<Select onChange={this.props.handleValue} placeholder="请选择年级">
+						<Option value="9">高一</Option>
+						<Option value="10">高二</Option>
+						<Option value="11">高三</Option>
+					</Select>
+				);
+			default:
+				return '';
+		}
+	}
+}
+
 class AddClassForm extends Component {
-	handleChange = (value) => {
+	state = {
+		class_type: '1'
+	};
+	handleClassTypeChange = (value) => {
+		this.setState({
+			class_type: value
+		});
 		console.log(`selected ${value}`);
 	};
 
@@ -66,8 +111,45 @@ class AddClassForm extends Component {
 	};
 	handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(this.props.form.getFieldsValue());
+		this.props.form.validateFields((err, values) => {
+			if (!err) {
+				console.log('Received values of form: ', values);
+				http({
+					method: 'post',
+					data: values,
+					url: '/aj/class/addclass'
+				}).then((res) => {
+					if (res.data.code === 10000) {
+						message.info('添加成功');
+						this.context.cancelModal();
+						this.context.fetchClasses(1, 10);
+					} else {
+						message.error(res.data.msg);
+					}
+				});
+			}
+		});
 	};
+	handleBatchAdd = (data) => {
+		const param = { classes: JSON.stringify(data) };
+		http({
+			method: 'post',
+			data: param,
+			url: '/aj/class/batchadd'
+		}).then((res) => {
+			if (res.data.code === 10000) {
+				message.info('添加成功');
+				this.context.cancelModal();
+				this.context.fetchClasses(1, 10);
+			} else {
+				message.error(res.data.msg);
+			}
+		});
+	};
+	handleSelectValue = (value) => {
+		this.props.form.setFieldsValue({ grade: value });
+	};
+	static contextType = modalContext;
 	render() {
 		const { getFieldDecorator } = this.props.form;
 		return (
@@ -77,11 +159,13 @@ class AddClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="班级类型">
-									{getFieldDecorator('gender', { initialValue: '初中' })(
-										<Select onChange={this.handleChange}>
-											<Option value="11">小学</Option>
-											<Option value="12">初中</Option>
-											<Option value="13">大学</Option>
+									{getFieldDecorator('class_type', {
+										rules: [ { required: true, message: '请选择班级类型' } ]
+									})(
+										<Select onChange={this.handleClassTypeChange} placeholder="选择班级类型">
+											<Option value="1">小学</Option>
+											<Option value="2">初中</Option>
+											<Option value="3">高中</Option>
 										</Select>
 									)}
 								</FormItem>
@@ -90,7 +174,7 @@ class AddClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="班级代码">
-									{getFieldDecorator('classID', {
+									{getFieldDecorator('class_no', {
 										rules: [ { required: true, message: '班级代码必填' } ]
 									})(<Input />)}
 								</FormItem>
@@ -99,12 +183,10 @@ class AddClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="学制">
-									{getFieldDecorator('zuezhi', { initialValue: '3年' })(
-										<Select onChange={this.handleChange}>
-											<Option value="11">3年</Option>
-											<Option value="14">4年</Option>
-											<Option value="12">5年</Option>
-											<Option value="13">6年</Option>
+									{getFieldDecorator('school_system', { initialValue: '3年' })(
+										<Select>
+											<Option value="3">3年</Option>
+											<Option value="6">6年</Option>
 										</Select>
 									)}
 								</FormItem>
@@ -115,12 +197,11 @@ class AddClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="年级">
-									{getFieldDecorator('ntional', { initialValue: '2018级' })(
-										<Select>
-											<Option value="2018">2018级</Option>
-											<Option value="2017">2017级</Option>
-											<Option value="2016">2016级</Option>
-										</Select>
+									{getFieldDecorator('grade')(
+										<SchoolSystem
+											type={this.state.class_type}
+											handleValue={this.handleSelectValue}
+										/>
 									)}
 								</FormItem>
 							</Col>
@@ -128,19 +209,15 @@ class AddClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="班级名称">
-									{getFieldDecorator('inSchoolTime', {
+									{getFieldDecorator('class_title', {
 										rules: [ { required: true, message: '班级名称必填' } ]
 									})(<Input />)}
 								</FormItem>
 							</Col>
 						</Row>
 						<Row>
-							<Col span={24}>
-								<FormItem label="班级名称">
-									{getFieldDecorator('inSchool', {
-										rules: [ { required: true, message: '班级名称必填' } ]
-									})(<Input />)}
-								</FormItem>
+							<Col span={2}>
+								<SheetToJson accept=".xlsx, .xls" parseDone={this.handleBatchAdd} />
 							</Col>
 						</Row>
 					</Col>
@@ -156,8 +233,20 @@ class AddClassForm extends Component {
 	}
 }
 const WrapedAddClassForm = Form.create()(AddClassForm);
-// 修改课程
+// 修改班级
 class EditClassForm extends Component {
+	static contextType = modalContext;
+	state = {
+		class_type: '1'
+	};
+	handleClassTypeChange = (value) => {
+		this.setState({
+			class_type: value
+		});
+	};
+	handleSelectValue = (value) => {
+		this.props.form.setFieldsValue({ grade: value });
+	};
 	handleChange = (value) => {
 		console.log(`selected ${value}`);
 	};
@@ -171,10 +260,30 @@ class EditClassForm extends Component {
 	};
 	handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(this.props.form.getFieldsValue());
+		this.props.form.validateFields((err, values) => {
+			if (!err) {
+				console.log('Received values of form: ', values);
+				http({
+					method: 'post',
+					data: values,
+					url: '/aj/class/editclass'
+				}).then((res) => {
+					if (res.data.code === 10000) {
+						message.info('修改成功');
+						console.log(this.context.currentPage);
+						this.context.fetchClasses(this.context.currentPage, 10);
+						this.context.cancelModal();
+					} else {
+						message.error(res.data.msg);
+					}
+				});
+			}
+		});
 	};
 	render() {
 		const { getFieldDecorator } = this.props.form;
+		const record = this.context.record;
+		console.log(record);
 		return (
 			<Form layout="vertical">
 				<Row>
@@ -182,11 +291,13 @@ class EditClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="班级类型">
-									{getFieldDecorator('gender', { initialValue: '初中' })(
-										<Select onChange={this.handleChange}>
-											<Option value="11">小学</Option>
-											<Option value="12">初中</Option>
-											<Option value="13">大学</Option>
+									{getFieldDecorator('class_type', {
+										rules: [ { required: true, message: '请选择班级类型' } ]
+									})(
+										<Select onChange={this.handleClassTypeChange} placeholder="选择班级类型">
+											<Option value="1">小学</Option>
+											<Option value="2">初中</Option>
+											<Option value="3">高中</Option>
 										</Select>
 									)}
 								</FormItem>
@@ -195,21 +306,20 @@ class EditClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="班级代码">
-									{getFieldDecorator('classID', {
+									{getFieldDecorator('class_no', {
+										initialValue: record.class_no,
 										rules: [ { required: true, message: '班级代码必填' } ]
-									})(<Input />)}
+									})(<Input disabled />)}
 								</FormItem>
 							</Col>
 						</Row>
 						<Row>
 							<Col span={24}>
 								<FormItem label="学制">
-									{getFieldDecorator('zuezhi', { initialValue: '3年' })(
-										<Select onChange={this.handleChange}>
-											<Option value="11">3年</Option>
-											<Option value="14">4年</Option>
-											<Option value="12">5年</Option>
-											<Option value="13">6年</Option>
+									{getFieldDecorator('school_system')(
+										<Select placeholder="请选择学制">
+											<Option value="3">3年</Option>
+											<Option value="6">6年</Option>
 										</Select>
 									)}
 								</FormItem>
@@ -220,12 +330,11 @@ class EditClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="年级">
-									{getFieldDecorator('ntional', { initialValue: '2018级' })(
-										<Select>
-											<Option value="2018">2018级</Option>
-											<Option value="2017">2017级</Option>
-											<Option value="2016">2016级</Option>
-										</Select>
+									{getFieldDecorator('grade')(
+										<SchoolSystem
+											type={this.state.class_type}
+											handleValue={this.handleSelectValue}
+										/>
 									)}
 								</FormItem>
 							</Col>
@@ -233,16 +342,8 @@ class EditClassForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="班级名称">
-									{getFieldDecorator('inSchoolTime', {
-										rules: [ { required: true, message: '班级名称必填' } ]
-									})(<Input />)}
-								</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="班级名称">
-									{getFieldDecorator('inSchool', {
+									{getFieldDecorator('class_title', {
+										initialValue: record.class_title,
 										rules: [ { required: true, message: '班级名称必填' } ]
 									})(<Input />)}
 								</FormItem>
@@ -263,58 +364,84 @@ class EditClassForm extends Component {
 const WrapedEditClassForm = Form.create()(EditClassForm);
 
 // 指定班主任
-const rowSelection = {
-	type: 'radio',
-	onChange: (selectedRowKeys, selectedRows) => {
-		console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-	},
-	getCheckboxProps: (record) => ({
-		disabled: record.name === 'Disabled User', // Column configuration not to be checked
-		name: record.name
-	})
-};
+
 class AssignChargeTeacher extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			columns: [
-				{
-					title: '老师工号',
-					dataIndex: 'teacherId',
-					key: 'teacherId'
-				},
-				{
-					title: '老师姓名',
-					dataIndex: 'teacherName',
-					key: 'teacherName'
-				}
-			],
-			data: [
-				{
-					key: '1',
-					teacherId: 2018008,
-					teacherName: 'oceanman'
-				},
-				{
-					key: '2',
-					teacherId: 2018008,
-					teacherName: 'oceanman'
-				},
-				{
-					key: '3',
-					teacherId: 2018008,
-					teacherName: 'oceanman'
-				},
-				{
-					key: '4',
-					teacherId: 2018008,
-					teacherName: 'oceanman'
-				}
-			]
-		};
+	state = {
+		columns: [
+			{
+				title: '老师工号',
+				dataIndex: 'job_num',
+				key: 'job_num'
+			},
+			{
+				title: '老师姓名',
+				dataIndex: 'name',
+				key: 'name'
+			}
+		],
+		data: []
+	};
+	static contextType = modalContext;
+
+	rowSelection = {
+		type: 'radio',
+		onChange: (selectedRowKeys, selectedRows) => {
+			this.assignData.header_teacher_id = selectedRowKeys[0];
+		},
+		getCheckboxProps: (record) => ({
+			disabled: record.name === 'Disabled User', // Column configuration not to be checked
+			name: record.name
+		})
+	};
+	componentDidMount() {
+		this.fetchTeachers(1, 10);
 	}
+	fetchTeachers = (page, count) => {
+		http({
+			method: 'post',
+			url: '/aj/teacher/getteachers',
+			data: {
+				page: page,
+				count: count
+			}
+		}).then((res) => {
+			if (res.data.code === 10000) {
+				let data = res.data.data.teachers.map((item) => {
+					item.key = item.teacher_id;
+					return item;
+				});
+				let total_count = res.data.data.total_count;
+				this.setState({
+					data: data,
+					total_count: total_count
+				});
+			} else {
+				message.error(res.data.msg);
+			}
+		});
+	};
+	assignData = {
+		class_no: '',
+		header_teacher_id: ''
+	};
+	assignHeader = () => {
+		http({
+			method: 'post',
+			url: '/aj/teacher/assignheader',
+			data: this.assignData
+		}).then((res) => {
+			if (res.data.code === 10000) {
+				this.context.cancelModal();
+				message.info('添加成功');
+			} else {
+				message.error(res.data.msg);
+			}
+		});
+	};
+
 	render() {
 		const { getFieldDecorator } = this.props.form;
+		this.assignData.class_no = this.context.assignParam.class_no;
 		return (
 			<div className="assign_container">
 				<Form layout="inline">
@@ -327,8 +454,10 @@ class AssignChargeTeacher extends Component {
 						<Button type="primary">搜索</Button>
 					</FormItem>
 				</Form>
-				<Table columns={this.state.columns} dataSource={this.state.data} rowSelection={rowSelection} />
-				<Button type="primary">保存</Button>
+				<Table columns={this.state.columns} dataSource={this.state.data} rowSelection={this.rowSelection} />
+				<Button type="primary" onClick={this.assignHeader}>
+					保存
+				</Button>
 			</div>
 		);
 	}
@@ -389,7 +518,7 @@ class AssignClassMonitor extends Component {
 						<Button type="primary">搜索</Button>
 					</FormItem>
 				</Form>
-				<Table columns={this.state.columns} dataSource={this.state.data} rowSelection={rowSelection} />
+				<Table columns={this.state.columns} dataSource={this.state.data} rowSelection />
 				<Button type="primary">保存</Button>
 			</div>
 		);
@@ -811,136 +940,176 @@ function ModalContent(props) {
 }
 
 class classesCharge extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			visible: false,
-			modalContent: 'addClass',
-			columns: [
-				{
-					title: '班级名称',
-					dataIndex: 'className',
-					key: 'class'
-				},
-				{
-					title: '班级代码',
-					dataIndex: 'studentID',
-					key: 'studentID'
-				},
-				{
-					title: '班主任',
-					dataIndex: 'studentName',
-					key: 'studentName'
-				},
-				{
-					title: '班长名称',
-					dataIndex: 'banzhangmingcheng',
-					key: 'banzhangmingcheng'
-				},
-				{
-					title: '班级类型',
-					dataIndex: 'gender',
-					key: 'gender'
-				},
-				{
-					title: '班级人数',
-					dataIndex: 'studentStatus',
-					key: 'studentStatus'
-				},
-				{
-					title: '操作',
-					dataIndex: 'operation',
-					key: 'operation',
-					render: (text, record) => (
-						<span>
-							<a
-								onClick={() => {
-									this.setModalContent('editClass');
-									this.showModal();
-								}}
-							>
-								修改
-							</a>
-							<Divider type="vertical" />
-							<a
-								onClick={() => {
-									this.setModalContent('assignTeacher');
-									this.showModal();
-								}}
-							>
-								指定班主任
-							</a>
-							<Divider type="vertical" />
-							<a
-								onClick={() => {
-									this.setModalContent('assignMonitor');
-									this.showModal();
-								}}
-							>
-								指定班长
-							</a>
-							<Divider type="vertical" />
-							<a
-								onClick={() => {
-									this.setModalContent('course');
-									this.showModal();
-								}}
-							>
-								班级课程
-							</a>
-							<Divider type="vertical" />
-							<a
-								onClick={() => {
-									this.setModalContent('assignClass');
-									this.showModal();
-								}}
-							>
-								分班
-							</a>
-						</span>
-					)
+	state = {
+		visible: false,
+		modalContent: 'addClass',
+		columns: [
+			{
+				title: '班级名称',
+				dataIndex: 'class_title',
+				key: 'class_title'
+			},
+			{
+				title: '班级代码',
+				dataIndex: 'class_no',
+				key: 'class_no'
+			},
+			{
+				title: '班主任',
+				dataIndex: 'studentName',
+				key: 'studentName'
+			},
+			{
+				title: '班长名称',
+				dataIndex: 'banzhangmingcheng',
+				key: 'banzhangmingcheng'
+			},
+			{
+				title: '班级类型',
+				dataIndex: 'class_type',
+				key: 'class_type',
+				render: (text) => {
+					if (text === 1) {
+						return '小学';
+					} else if (text === 2) {
+						return '初中';
+					} else if (text === 3) {
+						return '高中';
+					}
 				}
-			],
-			data: [
-				{
-					key: '1',
-					className: '五年级(3)班',
-					studentID: 1123213,
-					studentName: 'chuze',
-					banzhangmingcheng: 'Nicheg',
-					gender: '初中',
-					studentStatus: '45人'
-				},
-				{
-					key: '2',
-					className: '五年级(3)班',
-					studentID: 1123213,
-					studentName: 'chuze',
-					banzhangmingcheng: 'Nicheg',
-					gender: '初中',
-					studentStatus: '45人'
-				},
-				{
-					key: '3',
-					className: '五年级(3)班',
-					studentID: 1123213,
-					studentName: 'chuze',
-					banzhangmingcheng: 'Nicheg',
-					gender: '初中',
-					studentStatus: '45人'
-				},
-				{
-					key: '4',
-					className: '五年级(3)班',
-					studentID: 1123213,
-					studentName: 'chuze',
-					banzhangmingcheng: 'Nicheg',
-					gender: '初中',
-					studentStatus: '45人'
-				}
-			]
-		};
+			},
+			{
+				title: '班级人数',
+				dataIndex: 'studentStatus',
+				key: 'studentStatus'
+			},
+			{
+				title: '操作',
+				dataIndex: 'operation',
+				key: 'operation',
+				render: (text, record) => (
+					<span>
+						<a
+							onClick={() => {
+								this.setState({
+									record: record
+								});
+								this.setModalContent('editClass');
+								this.showModal();
+							}}
+						>
+							修改
+						</a>
+						<Divider type="vertical" />
+						<a
+							onClick={() => {
+								this.setModalContent('assignTeacher');
+								this.setState({
+									assignParam: {
+										class_no: record.class_no
+									}
+								});
+								this.showModal();
+							}}
+						>
+							指定班主任
+						</a>
+						<Divider type="vertical" />
+						<a
+							onClick={() => {
+								this.setModalContent('assignMonitor');
+								this.showModal();
+							}}
+						>
+							指定班长
+						</a>
+						<Divider type="vertical" />
+						<a
+							onClick={() => {
+								this.setModalContent('course');
+								this.showModal();
+							}}
+						>
+							班级课程
+						</a>
+						<Divider type="vertical" />
+						<a
+							onClick={() => {
+								this.setModalContent('assignClass');
+								this.showModal();
+							}}
+						>
+							分班
+						</a>
+					</span>
+				)
+			}
+		],
+		data: [],
+		total_count: 10,
+		selectedRowKeys: [],
+		assignParam: {
+			class_no: '',
+			header_teacher_id: ''
+		},
+		record: null,
+		currentPage: 1
+	};
+	componentDidMount() {
+		this.fetchClasses(1, 10);
 	}
+	fetchClasses = (page, count) => {
+		http({
+			method: 'post',
+			url: '/aj/class/getclasses',
+			data: {
+				page: page,
+				count: count
+			}
+		}).then((res) => {
+			if (res.data.code === 10000) {
+				let data = res.data.data.grades.map((item) => {
+					item.key = item.class_no;
+					return item;
+				});
+				let total_count = res.data.data.total_count;
+				this.setState({
+					data: data,
+					total_count: total_count
+				});
+			} else {
+				message.error(res.data.msg);
+			}
+		});
+	};
+	rowSelection = {
+		onChange: (selectedRowKeys) => {
+			this.setState({
+				selectedRowKeys: selectedRowKeys
+			});
+		},
+		getCheckboxProps: (record) => ({
+			disabled: record.name === 'Disabled User', // Column configuration not to be checked
+			name: record.name
+		})
+	};
+	batchDelete = () => {
+		http({
+			method: 'post',
+			data: {
+				classes: JSON.stringify(this.state.selectedRowKeys)
+			},
+			url: '/aj/class/batchdelete'
+		}).then((res) => {
+			if (res.data.code === 10000) {
+				message.info('删除成功');
+				this.handleCancel();
+				this.fetchClasses(1, 10);
+			} else {
+				message.error(res.data.msg);
+			}
+		});
+	};
 	handleOk = (e) => {
 		this.setState({
 			visible: false
@@ -972,16 +1141,41 @@ class classesCharge extends Component {
 						this.showModal();
 					}}
 				/>
-				<Table columns={this.state.columns} dataSource={this.state.data} />
+				<Table
+					columns={this.state.columns}
+					dataSource={this.state.data}
+					pagination={{
+						size: 10,
+						total: this.state.total_count,
+						onChange: (page) => {
+							this.setState({
+								currentPage: page
+							});
+							this.fetchClasses(page, 10);
+						}
+					}}
+					rowSelection={this.rowSelection}
+				/>
+				<Button onClick={this.batchDelete}>批量删除</Button>
 				<Modal
 					width={1000}
 					footer={null}
-					title="添加班级"
+					title="操作框"
 					visible={this.state.visible}
 					onOk={this.handleOk}
 					onCancel={this.handleCancel}
 				>
-					<ModalContent type={this.state.modalContent} />
+					<modalContext.Provider
+						value={{
+							cancelModal: this.handleCancel,
+							fetchClasses: this.fetchClasses,
+							assignParam: this.state.assignParam,
+							record: this.state.record,
+							currentPage: this.state.currentPage
+						}}
+					>
+						<ModalContent type={this.state.modalContent} />
+					</modalContext.Provider>
 				</Modal>
 			</div>
 		);

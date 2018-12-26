@@ -9,13 +9,15 @@
     "babel-plugin-import": "^1.11.0",
     "bizcharts": "^3.4.1",
     "react": "^16.6.3",
+    "react-amap": "^1.2.7",
     "react-app-rewire-typescript": "^2.0.2",
     "react-app-rewired": "^1.6.2",
     "react-dom": "^16.6.3",
     "react-redux": "^6.0.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.1",
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "xlsx": "^0.14.1"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -37,5 +39,5 @@
     "react-app-rewire-css-modules": "github:codebandits/react-app-rewire-css-modules",
     "sass-loader": "^7.1.0"
   },
-  "proxy": "http://www.electric.com"
+  "proxy": "http://card.development.com"
 }

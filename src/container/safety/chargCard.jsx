@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
-import { Form, Input, Button, Table, Divider, Row, Col, Select } from 'antd';
+import { Form, Input, Button, Table, Divider, Row, Col, Select, Modal } from 'antd';
+import History from '../../components/historyTrack.jsx';
+import { truncate } from 'fs';
 const FormItem = Form.Item;
 const Option = Select.Option;
 class chargeCard extends Component {
 	state = {
+		visible: false,
 		columns: [
 			{ title: '班级', dataIndex: 'class', key: 'class' },
 			{ title: '学号', dataIndex: 'id', key: 'id' },
@@ -16,7 +19,7 @@ class chargeCard extends Component {
 					<span>
 						<a>位置追踪</a>
 						<Divider type="vertical" />
-						<a>历史轨迹</a>
+						<a onClick={this.showModal}>历史轨迹</a>
 					</span>
 				)
 			}
@@ -111,6 +114,15 @@ class chargeCard extends Component {
 					</Row>
 				</Form>
 				<Table columns={this.state.columns} dataSource={this.state.data} />
+				<Modal
+					visible={this.state.visible}
+					bodyStyle={{ width: 1000, height: 700 }}
+					width={1000}
+					onCancel={this.handleCancel}
+					destroyOnClose
+				>
+					<History />
+				</Modal>
 			</div>
 		);
 	}

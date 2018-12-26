@@ -1,7 +1,11 @@
 import React, { Component } from 'react';
-import { Form, Input, Button, Table, Divider, Modal, Popconfirm, Select, Row, Col, Upload, Icon } from 'antd';
+import { Form, Input, Button, Table, Divider, Modal, Popconfirm, Select, Row, Col, message, Icon } from 'antd';
+import http from '../../config/axios.config';
 const FormItem = Form.Item;
 const Option = Select.Option;
+const { TextArea } = Input;
+const modalContext = React.createContext();
+const Provider = modalContext.Provider;
 class OperateForm extends Component {
 	handleChange = (value) => {
 		console.log(value);
@@ -40,52 +44,9 @@ class OperateForm extends Component {
 		);
 	}
 }
-class PicturesWall extends React.Component {
-	state = {
-		previewVisible: false,
-		previewImage: '',
-		fileList: []
-	};
-
-	handleCancel = () => this.setState({ previewVisible: false });
-
-	handlePreview = (file) => {
-		this.setState({
-			previewImage: file.url || file.thumbUrl,
-			previewVisible: true
-		});
-	};
-
-	handleChange = ({ fileList }) => this.setState({ fileList });
-
-	render() {
-		const { previewVisible, previewImage, fileList } = this.state;
-		const uploadButton = (
-			<div>
-				<Icon type="plus" />
-				<div className="ant-upload-text">Upload</div>
-			</div>
-		);
-		return (
-			<div className="clearfix">
-				<Upload
-					action="//jsonplaceholder.typicode.com/posts/"
-					listType="picture-card"
-					fileList={fileList}
-					onPreview={this.handlePreview}
-					onChange={this.handleChange}
-				>
-					{fileList.length >= 1 ? null : uploadButton}
-				</Upload>
-				<Modal visible={previewVisible} footer={null} onCancel={this.handleCancel}>
-					<img alt="example" style={{ width: '100%' }} src={previewImage} />
-				</Modal>
-			</div>
-		);
-	}
-}
 // 添加课程
 class AddCourseForm extends Component {
+	static contextType = modalContext;
 	handleChange = (value) => {
 		console.log(`selected ${value}`);
 	};
@@ -99,7 +60,24 @@ class AddCourseForm extends Component {
 	};
 	handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(this.props.form.getFieldsValue());
+		this.props.form.validateFields((err, values) => {
+			if (!err) {
+				console.log('Received values of form: ', values);
+				http({
+					method: 'post',
+					data: values,
+					url: '/aj/subjects/addsubject'
+				}).then((res) => {
+					if (res.data.code === 10000) {
+						message.info('添加成功');
+						this.context.fetchSubjects(1, 10);
+						this.context.cancelModal();
+					} else {
+						message.error(res.data.msg);
+					}
+				});
+			}
+		});
 	};
 	render() {
 		const { getFieldDecorator } = this.props.form;
@@ -110,24 +88,19 @@ class AddCourseForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="课程编码">
-									{getFieldDecorator('courseID', {
-										rules: [ { required: true, message: '学号必填' } ]
+									{getFieldDecorator('subject_id', {
+										rules: [ { required: true, message: '课程编码必填' } ]
 									})(<Input />)}
 								</FormItem>
 							</Col>
 						</Row>
 						<Row>
 							<Col span={24}>
-								<FormItem label="讲课时长">{getFieldDecorator('courseDuration')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
 								<FormItem label="课程性质">
-									{getFieldDecorator('courseStatus', { initialValue: '请选择' })(
+									{getFieldDecorator('subject_type', { initialValue: '请选择' })(
 										<Select onChange={this.handleChange}>
-											<Option value="11">必修课</Option>
-											<Option value="12">选修课</Option>
+											<Option value="1">必修课</Option>
+											<Option value="2">选修课</Option>
 										</Select>
 									)}
 								</FormItem>
@@ -138,37 +111,19 @@ class AddCourseForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="课程名称">
-									{getFieldDecorator('courseName', {
-										rules: [ { required: true, message: '名称必填' } ]
+									{getFieldDecorator('subject', {
+										rules: [ { required: true, message: '课程名称必填' } ]
 									})(<Input />)}
-								</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="实验学时">{getFieldDecorator('testDuration')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="课程类别">
-									{getFieldDecorator('courseCate')(
-										<Select
-											onChange={this.handleChange}
-											onFocus={this.handleFocus}
-											onBlur={this.handleBlur}
-										>
-											<Option value="学科课程">学科课程</Option>
-											<Option value="综合课程">综合课程</Option>
-											<Option value="活动课程">活动课程</Option>
-										</Select>
-									)}
 								</FormItem>
 							</Col>
 						</Row>
 					</Col>
 				</Row>
-
+				<Row>
+					<Col span={24}>
+						<FormItem label="添加备注">{getFieldDecorator('comment')(<TextArea />)}</FormItem>
+					</Col>
+				</Row>
 				<FormItem>
 					<Button type="primary" onClick={this.handleSubmit}>
 						保存
@@ -180,6 +135,7 @@ class AddCourseForm extends Component {
 }
 // 编辑课程
 class EditCourseForm extends Component {
+	static contextType = modalContext;
 	handleChange = (value) => {
 		console.log(`selected ${value}`);
 	};
@@ -193,10 +149,29 @@ class EditCourseForm extends Component {
 	};
 	handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(this.props.form.getFieldsValue());
+		this.props.form.validateFields((err, values) => {
+			if (!err) {
+				console.log('Received values of form: ', values);
+				http({
+					method: 'post',
+					data: values,
+					url: '/aj/subjects/editsubject'
+				}).then((res) => {
+					if (res.data.code === 10000) {
+						message.info('修改成功');
+						console.log(this.context.currentPage);
+						this.context.fetchSubjects(this.context.currentPage, 10);
+						this.context.cancelModal();
+					} else {
+						message.error(res.data.msg);
+					}
+				});
+			}
+		});
 	};
 	render() {
 		const { getFieldDecorator } = this.props.form;
+		const record = this.context.editRow;
 		return (
 			<Form layout="vertical">
 				<Row>
@@ -204,24 +179,20 @@ class EditCourseForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="课程编码">
-									{getFieldDecorator('courseID', {
-										rules: [ { required: true, message: '学号必填' } ]
-									})(<Input />)}
+									{getFieldDecorator('subject_id', {
+										initialValue: record.subject_id,
+										rules: [ { required: true, message: '课程编码必填' } ]
+									})(<Input disabled />)}
 								</FormItem>
 							</Col>
 						</Row>
 						<Row>
 							<Col span={24}>
-								<FormItem label="讲课时长">{getFieldDecorator('courseDuration')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
 								<FormItem label="课程性质">
-									{getFieldDecorator('courseStatus', { initialValue: '请选择' })(
-										<Select onChange={this.handleChange}>
-											<Option value="11">必修课</Option>
-											<Option value="12">选修课</Option>
+									{getFieldDecorator('subject_type')(
+										<Select onChange={this.handleChange} placeholder="请选择课程性质">
+											<Option value="1">必修课</Option>
+											<Option value="2">选修课</Option>
 										</Select>
 									)}
 								</FormItem>
@@ -232,37 +203,22 @@ class EditCourseForm extends Component {
 						<Row>
 							<Col span={24}>
 								<FormItem label="课程名称">
-									{getFieldDecorator('courseName', {
-										rules: [ { required: true, message: '名称必填' } ]
+									{getFieldDecorator('subject', {
+										initialValue: record.subject,
+										rules: [ { required: true, message: '课程名称必填' } ]
 									})(<Input />)}
-								</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="实验学时">{getFieldDecorator('testDuration')(<Input />)}</FormItem>
-							</Col>
-						</Row>
-						<Row>
-							<Col span={24}>
-								<FormItem label="课程类别">
-									{getFieldDecorator('courseCate')(
-										<Select
-											onChange={this.handleChange}
-											onFocus={this.handleFocus}
-											onBlur={this.handleBlur}
-										>
-											<Option value="学科课程">学科课程</Option>
-											<Option value="综合课程">综合课程</Option>
-											<Option value="活动课程">活动课程</Option>
-										</Select>
-									)}
 								</FormItem>
 							</Col>
 						</Row>
 					</Col>
 				</Row>
-
+				<Row>
+					<Col span={24}>
+						<FormItem label="添加备注">
+							{getFieldDecorator('comment', { initialValue: record.comment })(<TextArea />)}
+						</FormItem>
+					</Col>
+				</Row>
 				<FormItem>
 					<Button type="primary" onClick={this.handleSubmit}>
 						保存
@@ -278,73 +234,104 @@ const WrapedAddStudetForm = Form.create()(AddCourseForm);
 const WrapedEditCourseForm = Form.create()(EditCourseForm);
 
 class courseCharge extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			visible: false,
-			visibleType: 'Add',
-			columns: [
-				{
-					title: '课程编码',
-					dataIndex: 'courseID',
-					key: 'courseID'
-				},
-				{
-					title: '课程名称',
-					dataIndex: 'courseName',
-					key: 'courseName'
-				},
-				{
-					title: '课程性质',
-					dataIndex: 'courseNature',
-					key: 'courseNature'
-				},
-				{
-					title: '操作',
-					dataIndex: 'operation',
-					key: 'operation',
-					render: (text, record) => (
-						<span>
-							<a
-								onClick={() => {
-									this.handleVisibleType('Edit');
-									this.showModal();
-								}}
-							>
-								编辑
-							</a>
-						</span>
-					)
+	state = {
+		visible: false,
+		visibleType: 'Add',
+		editRow: null,
+		columns: [
+			{
+				title: '课程编码',
+				dataIndex: 'subject_id',
+				key: 'subject_id'
+			},
+			{
+				title: '课程名称',
+				dataIndex: 'subject',
+				key: 'subject'
+			},
+			{
+				title: '课程性质',
+				dataIndex: 'subject_type',
+				key: 'subject_type',
+				render: (text) => {
+					if (text === 1) {
+						return '必修';
+					} else if (text === 2) {
+						return '选修';
+					} else {
+						return '其他';
+					}
 				}
-			],
-			data: [
-				{
-					key: '1',
-					courseID: '09',
-					courseName: '音乐',
-					courseNature: '必修'
-				},
-				{
-					key: '2',
-					courseID: '09',
-					courseName: '音乐',
-					courseNature: '必修'
-				},
-				{
-					key: '3',
-					courseID: '09',
-					courseName: '音乐',
-					courseNature: '必修'
-				},
-				{
-					key: '4',
-					courseID: '09',
-					courseName: '音乐',
-					courseNature: '必修'
-				}
-			]
-		};
+			},
+			{
+				title: '操作',
+				dataIndex: 'operation',
+				key: 'operation',
+				render: (text, record) => (
+					<span>
+						<a
+							onClick={() => {
+								this.setState({
+									editRow: record
+								});
+								this.handleVisibleType('Edit');
+								this.showModal();
+							}}
+						>
+							编辑
+						</a>
+					</span>
+				)
+			}
+		],
+		data: [],
+		selectedRowKeys: [],
+		currentPage: 1
+	};
+	componentDidMount() {
+		this.fetchSubjects(1, 10);
 	}
+	fetchSubjects = (page, count) => {
+		http({
+			method: 'post',
+			url: '/aj/subjects/getsubjects',
+			data: {
+				page: page,
+				count: count
+			}
+		}).then((res) => {
+			if (res.data.code === 10000) {
+				let data = res.data.data.subjects.map((item) => {
+					item.key = item.subject_id;
+					return item;
+				});
+				let total_count = res.data.data.total_count;
+				this.setState({
+					data: data,
+					total_count: total_count
+				});
+			} else {
+				message.error(res.data.msg);
+			}
+		});
+	};
+	batchDelete = () => {
+		http({
+			method: 'post',
+			data: {
+				subjects: JSON.stringify(this.state.selectedRowKeys)
+			},
+			url: '/aj/subjects/batchdelete'
+		}).then((res) => {
+			if (res.data.code === 10000) {
+				message.info('删除成功');
+				this.handleCancel();
+				this.fetchSubjects(1, 10);
+			} else {
+				message.error(res.data.msg);
+			}
+		});
+	};
 	handleOk = (e) => {
 		this.setState({
 			visible: false
@@ -366,6 +353,13 @@ class courseCharge extends Component {
 			visibleType: type
 		});
 	};
+	rowSelection = {
+		onChange: (selectedRowKeys) => {
+			this.setState({
+				selectedRowKeys: selectedRowKeys
+			});
+		}
+	};
 	render() {
 		return (
 			<div className="student_charge_container">
@@ -375,7 +369,22 @@ class courseCharge extends Component {
 						this.showModal();
 					}}
 				/>
-				<Table columns={this.state.columns} dataSource={this.state.data} />
+				<Table
+					columns={this.state.columns}
+					dataSource={this.state.data}
+					pagination={{
+						size: 10,
+						total: this.state.total_count,
+						onChange: (page) => {
+							this.setState({
+								currentPage: page
+							});
+							this.fetchSubjects(page, 10);
+						}
+					}}
+					rowSelection={this.rowSelection}
+				/>
+				<Button onClick={this.batchDelete}>批量删除</Button>
 				<Modal
 					width={1000}
 					footer={null}
@@ -385,7 +394,16 @@ class courseCharge extends Component {
 					onOk={this.handleOk}
 					onCancel={this.handleCancel}
 				>
-					{this.state.visibleType === 'Add' ? <WrapedAddStudetForm /> : <WrapedEditCourseForm />}
+					<Provider
+						value={{
+							cancelModal: this.handleCancel,
+							fetchSubjects: this.fetchSubjects,
+							editRow: this.state.editRow,
+							currentPage: this.state.currentPage
+						}}
+					>
+						{this.state.visibleType === 'Add' ? <WrapedAddStudetForm /> : <WrapedEditCourseForm />}
+					</Provider>
 				</Modal>
 			</div>
 		);
