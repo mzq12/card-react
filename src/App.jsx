@@ -2,8 +2,7 @@ import React, { Component, Suspense, lazy } from 'react';
 import './App.css';
 import { Layout, Menu, Breadcrumb, Icon } from 'antd';
 import { HashRouter as Router, Route, Switch, Link } from 'react-router-dom';
-import sotre from './reducers/user.js';
-import studentsCharge from './container/educational/studentscharge';
+import Cookies from 'js-cookie';
 const { Header, Content, Footer, Sider } = Layout;
 const SubMenu = Menu.SubMenu;
 
@@ -41,8 +40,20 @@ class App extends Component {
 		this.setState({ Breadcrumb: breadcrumbs });
 	};
 	componentDidMount() {
-		console.log(sotre.getState());
+		this.checkLogin();
 	}
+
+	componentWillUpdate(nextProps) {
+		this.checkLogin();
+	}
+
+	checkLogin = () => {
+		const token = Cookies.get('token');
+		if (!token) {
+			this.props.history.push('/login');
+		}
+	};
+
 	render() {
 		return (
 			<Layout

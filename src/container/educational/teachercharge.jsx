@@ -324,13 +324,17 @@ class teacherCharge extends Component {
 					)
 				}
 			],
-			data: []
+			data: [],
+			loading: true
 		};
 	}
 	componentDidMount() {
 		this.fetchTeachers(1, 10);
 	}
 	fetchTeachers = (page, count) => {
+		this.setState({
+			loading: true
+		});
 		http({
 			method: 'post',
 			url: '/aj/teacher/getteachers',
@@ -347,7 +351,8 @@ class teacherCharge extends Component {
 				let total_count = res.data.data.total_count;
 				this.setState({
 					data: data,
-					total_count: total_count
+					total_count: total_count,
+					loading: false
 				});
 			} else {
 				message.error(res.data.msg);
@@ -374,7 +379,7 @@ class teacherCharge extends Component {
 		return (
 			<div className="student_charge_container">
 				<WrapedOperateForm showModal={this.showModal} />
-				<Table columns={this.state.columns} dataSource={this.state.data} />
+				<Table loading={this.state.loading} columns={this.state.columns} dataSource={this.state.data} />
 				<Modal
 					width={1000}
 					footer={null}

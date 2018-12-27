@@ -3,6 +3,8 @@ import { Form, Input, Button } from 'antd';
 import LoginStyle from '../static/scss/login.scss';
 import store from '../reducers/user.js';
 import http from '../config/axios.config.js';
+import Cookies from 'js-cookie';
+
 const FormItem = Form.Item;
 class Login extends Component {
 	componentDidMount() {
@@ -15,16 +17,20 @@ class Login extends Component {
 				console.log('Received values of form: ', values);
 				http({
 					method: 'post',
-					url: '/aj/account/login',
+					url: '/aj/login',
 					data: values
-				}).then(function(response) {
-					console.log(response);
+				}).then((res) => {
+					if (res.data.code === 10000) {
+						Cookies.set('token', res.data.data.user.token, { path: '/' });
+						this.props.history.push('/');
+					}
 				});
 			}
 		});
 	};
 	render() {
 		const { getFieldDecorator } = this.props.form;
+		console.log(this.props);
 		return (
 			<div className={LoginStyle.login_container}>
 				<div className={LoginStyle.slogan}>
@@ -36,7 +42,7 @@ class Login extends Component {
 					<Form className={LoginStyle.login_form}>
 						<FormItem>
 							<label htmlFor="">用户名</label>
-							{getFieldDecorator('userName', {
+							{getFieldDecorator('username', {
 								rules: [ { required: true, message: '请输入用户名!' } ]
 							})(<Input />)}
 						</FormItem>

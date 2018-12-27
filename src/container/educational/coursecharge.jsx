@@ -286,12 +286,16 @@ class courseCharge extends Component {
 		],
 		data: [],
 		selectedRowKeys: [],
-		currentPage: 1
+		currentPage: 1,
+		loading: true
 	};
 	componentDidMount() {
 		this.fetchSubjects(1, 10);
 	}
 	fetchSubjects = (page, count) => {
+		this.setState({
+			loading: true
+		});
 		http({
 			method: 'post',
 			url: '/aj/subjects/getsubjects',
@@ -308,7 +312,8 @@ class courseCharge extends Component {
 				let total_count = res.data.data.total_count;
 				this.setState({
 					data: data,
-					total_count: total_count
+					total_count: total_count,
+					loading: false
 				});
 			} else {
 				message.error(res.data.msg);
@@ -370,6 +375,7 @@ class courseCharge extends Component {
 					}}
 				/>
 				<Table
+					loading={this.state.loading}
 					columns={this.state.columns}
 					dataSource={this.state.data}
 					pagination={{

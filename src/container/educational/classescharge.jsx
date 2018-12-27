@@ -216,8 +216,10 @@ class AddClassForm extends Component {
 							</Col>
 						</Row>
 						<Row>
-							<Col span={2}>
-								<SheetToJson accept=".xlsx, .xls" parseDone={this.handleBatchAdd} />
+							<Col span={24}>
+								<FormItem label="批量上传">
+									<SheetToJson accept=".xlsx, .xls" parseDone={this.handleBatchAdd} />
+								</FormItem>
 							</Col>
 						</Row>
 					</Col>
@@ -1053,12 +1055,16 @@ class classesCharge extends Component {
 			header_teacher_id: ''
 		},
 		record: null,
-		currentPage: 1
+		currentPage: 1,
+		loading: true
 	};
 	componentDidMount() {
 		this.fetchClasses(1, 10);
 	}
 	fetchClasses = (page, count) => {
+		this.setState({
+			loading: true
+		});
 		http({
 			method: 'post',
 			url: '/aj/class/getclasses',
@@ -1075,7 +1081,8 @@ class classesCharge extends Component {
 				let total_count = res.data.data.total_count;
 				this.setState({
 					data: data,
-					total_count: total_count
+					total_count: total_count,
+					loading: false
 				});
 			} else {
 				message.error(res.data.msg);
@@ -1142,6 +1149,7 @@ class classesCharge extends Component {
 					}}
 				/>
 				<Table
+					loading={this.state.loading}
 					columns={this.state.columns}
 					dataSource={this.state.data}
 					pagination={{
